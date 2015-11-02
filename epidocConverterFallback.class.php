@@ -152,7 +152,7 @@ class epidocConverterFallback extends epidocConverter {
 	 * @return boolean
 	 */
 	function status() {
-		if (!class_exist('XSLTProcessor')) {
+		if (!class_exists('XSLTProcessor')) {
 			throw new Exception('XSLTProcessor not present');
 		}
 		return 'XSLT Fallback mode';

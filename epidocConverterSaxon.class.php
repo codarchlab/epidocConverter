@@ -18,7 +18,7 @@
  * try {
  * 	$s = new epidocConverter(file_get_contents("/myepidocfiles/HD006705.xml"));
  * 	$xml = $s->convert();
- * 	echo '<div class="myepidocbox">' .  $xml->asXML() . '</div>';
+ * 	echo '<div class="myepidocbox">' .  $xml . '</div>';
  * } catch (Exception $e) {
  * 	echo $e->getMessage();
  * }
