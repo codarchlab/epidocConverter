@@ -3,8 +3,10 @@
  *
  * epidocConverter
  *
- * @version 1.0
- * @year 2015
+ * @version 1.1
+ * 
+ * @year 2016
+ * 
  * @author Philipp Franck
  *
  * @desc
@@ -59,29 +61,29 @@ abstract class epidocConverter {
 	 * This selects the SaxonProcessor if possible and if not the internal XSLT 1.0 Processor.
 	 * 
 	 * @param string $epidoc
-	 * @param bool $forceFallbackMode - if true, it uses the build-in XSLT processor even if Saxon/C if avaiblable
+	 * @param $mode 'saxon' 'libxml' 'remote'
 	 * @return epidocConverterFallback|epidocConverterSaxon
 	 */
-	function create($epidoc = false, $forceFallbackMode = false) {
+	function create($epidoc = false, $mode = false) {
 		/**
-		 *
 		 * Takes the Epidoc-Data and passes to the available XSLT Processor.
 		 *
-		 *
-		 * @param string $stuff
 		 */
 
-		require_once('epidocConverterSaxon.class.php');
-		require_once('epidocConverterFallback.class.php');
-		
-		if ($forceFallbackMode) {
-			return new epidocConverterFallback($epidoc);
+		if (file_exists("epidocConverter.$mode.class.php")) {
+			require_once("epidocConverter.$mode.class.php");
 		} else {
-			try {
-				return  new epidocConverterSaxon($epidoc);
-			} catch (Exception $e) {
-				return  new epidocConverterFallback($epidoc);
+			throw new \Exception("epidocConverter.$mode.class.php does not exist.");
+		}
+		
+		try {
+			$class = "\\epidocConverter\\$mode";
+			return new $class($epidoc);
+		} catch (Exception $e) {
+			if ($mode != 'libxml') {
+				return epidocConverter::create($epidoc, 'libxml');
 			}
+			throw $e;
 		}
 	}
 	
@@ -150,10 +152,10 @@ abstract class epidocConverter {
 	/**
 	 * Raise Exception if XML Erros collected
 	 *
-	 * @param string $return - should errors be rturend or raised as exception? defaults to true
+	 * @param string $return - should errors be returned or raised as exception? defaults to true
 	 * @throws Exception
 	 */
-	abstract function raiseErrors($resturn = false);
+	abstract function raiseErrors($return = false);
 	
 
 	

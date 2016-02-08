@@ -4,6 +4,11 @@
 	
 }
 
+.pb {
+	font-weight: bold;
+	margin-top: 0.3em;
+	margin-left: 4em;
+}
 
 .ex,
 .supplied,
