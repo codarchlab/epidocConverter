@@ -74,7 +74,7 @@ namespace epidocConverter {
 	
 		
 		function status() {
-			return 'Remote (' . ($this->apiurlArguments['forceFallback']  ? 'forceFallback' : 'auto') . ')';
+			return 'Remote (' . ($this->apiurlArguments['mode']  ? $this->apiurlArguments['mode'] : 'auto') . ')';
 		}
 		
 		function convert($all = false) {
@@ -129,6 +129,11 @@ namespace epidocConverter {
 				throw new \Exception($responseO ? $responseO->message : 'No Response from ' . $this->apiurl . '! <br> <pre>' . $response . '</pre>');
 			}
 			
+		}
+		
+		function getStylesheet() {			
+			$conv = \epidocConverter::create('', $this->apiurlArguments['mode']);
+			return $conv->getStylesheet();
 		}
 
 	}

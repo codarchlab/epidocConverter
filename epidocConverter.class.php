@@ -54,6 +54,8 @@ abstract class epidocConverter {
 	
 	/**
 	 * 
+	 * Takes the Epidoc-Data and passes to the available XSLT Processor.
+	 * 
 	 * use this function if you want to select converter automatically:
 	 * 
 	 * @tutorial 
@@ -61,30 +63,49 @@ abstract class epidocConverter {
 	 * This selects the SaxonProcessor if possible and if not the internal XSLT 1.0 Processor.
 	 * 
 	 * @param string $epidoc
-	 * @param $mode 'saxon' 'libxml' 'remote'
+	 * @param string $mode 'saxon' 'libxml' 'remote' 'remote:saxon' 'remote:libxml'
+	 * @param assoc $settings (for example array('apiurl' =>  'http://myepidocservice'))
 	 * @return epidocConverterFallback|epidocConverterSaxon
 	 */
-	function create($epidoc = false, $mode = false) {
-		/**
-		 * Takes the Epidoc-Data and passes to the available XSLT Processor.
-		 *
-		 */
+	function create($epidoc = false, $mode = 'libxml', $settings  = array()) {
+		error_reporting(true);
+		ini_set('display_errors', '1');
+		list($mode, $mode2) = explode(':', $mode);
 
-		if (file_exists("epidocConverter.$mode.class.php")) {
-			require_once("epidocConverter.$mode.class.php");
+		$file = dirname(__FILE__) . "/epidocConverter.$mode.class.php";
+		
+		if (file_exists($file)) {
+			require_once($file);
 		} else {
-			throw new \Exception("epidocConverter.$mode.class.php does not exist.");
+			throw new \Exception("$file does not exist.");
 		}
 		
 		try {
 			$class = "\\epidocConverter\\$mode";
-			return new $class($epidoc);
+			$conv = new $class('');
 		} catch (Exception $e) {
-			if ($mode != 'libxml') {
-				return epidocConverter::create($epidoc, 'libxml');
+			if ($mode != 'libxml') { // fallback to mode libxml
+				$conv = epidocConverter::create($epidoc, 'libxml');
 			}
 			throw $e;
+		}		
+
+		foreach ($settings as $key => $val) {
+			if (property_exists($conv, $key)) {
+				$conv->$key = $val;
+			}
 		}
+		
+		if (!empty ($mode2) and ($mode == 'remote')) {
+			$conv->apiurlArguments['mode'] = $mode2;
+		}
+
+		if (!empty($epidoc)) {
+			$conv->set($epidoc);
+		}
+		
+
+		return $conv;
 	}
 	
 	/**
@@ -94,6 +115,10 @@ abstract class epidocConverter {
 	 * @param string | simpleXmlElement $data
 	 */
 	function set($data) {
+		if (empty($data)) {
+			throw new \Exception('Empty String');
+		}
+		
 		if ($data instanceof SimpleXMLElement) {
 			$this->importStr($data->asXML());
 		} else {
@@ -126,7 +151,7 @@ abstract class epidocConverter {
 		if (!$str) {
 			throw new Exception('Empty XML String');
 		}
-		
+
 		// correct dtd-path if necessary
 		$this->dtdPath = ($this->dtdPath == 'tei-epidoc.dtd') ? $this->workingDir . '/' . $this->dtdPath : $this->dtdPath;
 		$str = preg_replace('#(\<!DOCTYPE TEI.*?\>)#mi', '<!DOCTYPE TEI SYSTEM "' . $this->dtdPath . '">', $str);
