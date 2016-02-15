@@ -131,6 +131,7 @@ namespace epidocConverter {
 			
 		}
 		
+		
 		function getStylesheet() {
 			$modes = explode(':', $this->apiurlArguments['mode']);
 			$mode = array_pop($modes);
@@ -154,6 +155,8 @@ namespace epidocConverter {
 			}
 
 			return $c->getStylesheet();
+
+
 		}
 
 	}
