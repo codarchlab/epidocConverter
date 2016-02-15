@@ -19,8 +19,11 @@
     <div id="textpart">
       <xsl:apply-templates/>
     </div>
-  </xsl:template>  
+  </xsl:template>
   
+  <xsl:template match="//t:pb">
+    <div class='pb'><xsl:value-of select="@n"/></div>
+  </xsl:template>
   
   <xsl:template match="//t:ab/text()">
     <xsl:value-of select="." />
@@ -42,10 +45,13 @@
 
 
   <xsl:template match="//t:lb">
-    <br />
+    <xsl:if test="(local-name(preceding-sibling::*[1]) != 'pb') and (local-name(preceding-sibling::*[1]) != 'div') and (local-name(preceding-sibling::*[1]) != 'p')">
+      <br />
+    </xsl:if>
     <span class="linenumber">
       <xsl:if test="@n &gt; 0 and @n mod 5 = 0"><xsl:value-of select="@n" /></xsl:if>
     </span>
+    <!--{<xsl:value-of select="local-name(preceding-sibling::*[1])" />}-->
   </xsl:template>
   
   
