@@ -151,6 +151,7 @@ namespace epidocConverter {
 
 			$c = new $class('', true);
 
+
 			return $c->getStylesheet();
 
 
