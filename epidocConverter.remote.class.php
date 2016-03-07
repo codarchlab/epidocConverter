@@ -53,7 +53,7 @@ namespace epidocConverter {
 		);
 		
 		
-		function __construct($data = false) {
+		function __construct($data = false, $noException  = false) {
 			if ($data) {
 				$this->set($data);
 			}
@@ -131,9 +131,29 @@ namespace epidocConverter {
 			
 		}
 		
-		function getStylesheet() {			
-			$conv = \epidocConverter::create('', $this->apiurlArguments['mode']);
-			return $conv->getStylesheet();
+		
+		function getStylesheet() {
+			$modes = explode(':', $this->apiurlArguments['mode']);
+			$mode = array_pop($modes);
+			$mode = ($mode == 'remote') ? 'libxml' : $mode;
+			
+			$file = dirname(__FILE__) . "/epidocConverter.$mode.class.php";
+		
+			if (file_exists($file)) {
+				require_once($file);
+			} else {
+				throw new \Exception("$file does not exist.");
+			}
+		
+
+			$class = "\\epidocConverter\\$mode";
+			
+
+			$c = new $class('', true);
+
+			return $c->getStylesheet();
+
+
 		}
 
 	}

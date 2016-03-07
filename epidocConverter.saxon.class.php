@@ -95,9 +95,10 @@ namespace epidocConverter {
 		/**
 		 * 
 		 * @param string | SimpleXMLElement $data
+		 * @param noException | if true this does not throw exception if saxon not present (so you can use it for getting stylesheet etc.)
 		 * @throws Exception
 		 */
-		function __construct($data = false) {
+		function __construct($data = false, $noException  = false) {
 			
 			// set up working dir (see footnote 1)
 			$this->workingDir = __DIR__;
@@ -113,7 +114,9 @@ namespace epidocConverter {
 				}
 				
 			} else {
-				throw new \Exception('Saxon XSLT Processor PHP Module not available.');
+				if (!$noException) {
+					throw new \Exception('Saxon XSLT Processor PHP Module not available.');
+				}
 			}
 			
 		}

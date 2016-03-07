@@ -72,9 +72,17 @@ namespace epidocConverter {
 		 * 
 		 * @param string | simpleXmlElement $data - the epidoc
 		 */
-		function __construct($data = false) {
+		function __construct($data = false, $noException  = false) {
 			
 			$this->workingDir = __DIR__;
+			
+			if (!class_exists('\XSLTProcessor')) {
+				throw new \Exception('PHP XSLT Extension not installed');
+			}
+			
+			if(LIBXML_VERSION < 20708) {
+				throw new \Exception('libxml version too old - you need at least version 2.7.8 (as shipped with PHP 5.4.0)');
+			}
 			
 			$this->proc = new \XSLTProcessor();
 			$this->proc->registerPHPFunctions(); // that's why we love php
@@ -165,7 +173,7 @@ namespace epidocConverter {
 			if (!class_exists('XSLTProcessor')) {
 				throw new \Exception('XSLTProcessor not present');
 			}
-			return 'XSLT Fallback mode';
+			return 'libxml mode';
 		}
 		
 		/**
