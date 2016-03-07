@@ -53,7 +53,7 @@ namespace epidocConverter {
 		);
 		
 		
-		function __construct($data = false, $noException  = false) {
+		function __construct($data = false) {
 			if ($data) {
 				$this->set($data);
 			}
