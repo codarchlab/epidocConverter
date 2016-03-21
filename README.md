@@ -11,7 +11,6 @@ Author: Philipp Franck.
 * PHP >= 5.4.0 < 7.0.0
 * Saxon/C XSLT Processor 1.0.0
 
-
 ## Tutorial
 
 ```php
@@ -43,7 +42,7 @@ epidoc.dainst.org per default, but you can set up your own with this package.
 The renderer. Uses Saxon/C XSLT 2.0 Processor and the default EpidDoc-Stylesheets in /xsl.
 
 ### epidocConverter.saxon03.class.php
-Old Version epidocConverter.saxon.class.php using Saxon/C 0.3 beta. NNot sure if still working but included just in case.
+Old Version epidocConverter.saxon.class.php using Saxon/C 0.3 beta. Not sure if still working but included just in case.
 
 ### tei-epidoc.dtd
 DTD fpr Epidoc. Necessary in some cases.
