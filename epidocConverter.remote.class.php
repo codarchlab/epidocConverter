@@ -145,12 +145,9 @@ namespace epidocConverter {
 				throw new \Exception("$file does not exist.");
 			}
 		
-
 			$class = "\\epidocConverter\\$mode";
-			
 
 			$c = new $class('', true);
-
 
 			return $c->getStylesheet();
 

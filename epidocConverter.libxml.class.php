@@ -64,7 +64,7 @@ namespace epidocConverter {
 		
 		public $xmlDom;
 		
-	
+		public $renderOptions = array();
 		
 		/**
 		 * 
