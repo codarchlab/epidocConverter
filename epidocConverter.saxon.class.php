@@ -84,7 +84,7 @@ namespace epidocConverter {
 		public $xslFile = "xsl/start-edition.xsl"; // relative to this files' position !
 		public $dtdPath = 'tei-epidoc.dtd'; //can be set to anywhere, but default is working directory
 		public $workingDir = ''; //set in __construct, but is public value in case you want to change (see footnote 1)
-		public $cssFile = "xsl/global.css";
+		public static $cssFilePath = "xsl/global.css";
 		
 		// the processor
 		public $saxon = NULL;
@@ -99,11 +99,11 @@ namespace epidocConverter {
 		 * @param noException | if true this does not throw exception if saxon not present (so you can use it for getting stylesheet etc.)
 		 * @throws Exception
 		 */
-		function __construct($data = false, $noException  = false) {
-			
+		function __construct($data = false, $noException = false) {
 			// set up working dir (see footnote 1)
 			$this->workingDir = __DIR__;
 			$this->dtdPath = $this->workingDir . '/' . $this->dtdPath;
+			$this->cssFile = self::$cssFilePath;
 			
 			// check for saxon	
 			if (class_exists('\\Saxon\\SaxonProcessor')) {

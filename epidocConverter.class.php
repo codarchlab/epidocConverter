@@ -50,9 +50,11 @@ abstract class epidocConverter {
 	
 	// position of xslt stylsheets & so on
 	public $workingDir; // usually __DIR__
-	public $cssFile;
 	public $xslFile;
 	public $dtdPath = 'tei-epidoc.dtd'; //can be set to anywhere, but default is working directory
+	
+	public static $cssFilePath;
+	public $cssFile;
 	
 	public $errors = array(); // tmp array for errors
 	
