@@ -39,7 +39,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-
 // settings
 $allowedIps		= array();
 $alowedQueriesPerMinute = 120;
@@ -47,7 +46,7 @@ $alowedQueriesPerMinute = 120;
 
 // surpress errors (some warning may emerge vom meekro)
 error_reporting(E_ALL);
-ini_set('display_errors', 'off');
+ini_set('display_errors', 'on');
 $warnings 		= array();
 
 /**
@@ -58,7 +57,7 @@ try {
 
 	// instanciate db for log and timeout (meekro)
 	require_once 'inc/meekrodb.2.3.class.php';
-	$mdb = new MeekroDB('localhost', 'mysqluser', 'pEaS!S%8@Z#%+3GM', 'epidoc_api_log');
+	$mdb = new MeekroDB('localhost', 'epiapi', 'fALFeY9y03qk4ouDdC5M', 'epi_api_log');
 
 	// low budget security check
 	$ip			= $_SERVER['REMOTE_ADDR'];
@@ -83,26 +82,51 @@ try {
 	$epidoc = $data ? $data : $epidoc; // because backward compability
 	if (isset($post['epidoc'])) {$post['epidoc'] = '<epidoc data>';}
 	if (isset($post['data'])) {$post['data'] = '<epidoc data>';}
-		
-	// give timeout if to many requests
+	$mode = empty($mode) ? 'saxon' : $mode;
+
+ 	// give timeout if to many requests
 	if ($mdb->queryFirstField('SELECT count(*) FROM log where timestamp > date_sub(now(), interval 1 minute)') > $alowedQueriesPerMinute) {
 		throw new Exception("Timeout! Too many calls.");
 	}
-	
-	// log
+
+ 	// log
 	$mdb->insert('log', array(
 		'epidoc'	=>	$dataUrl? $dataUrl : '<epidoc data>',
 		'renderer'	=>	$mode,
 		'parameter'	=>	serialize($post),
 		'ip'		=>	$_SERVER['SERVER_ADDR']
 	));
+
+	// enabling CORS (would be a shameful webservice without)
+	if (isset($_SERVER['HTTP_ORIGIN'])) {
+		header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+		header('Access-Control-Allow-Credentials: true');
+		header('Access-Control-Max-Age: 86400');    // cache for 1 day
+	}
 	
-	// get data from url
+	// Access-Control headers are received during OPTIONS request
+	if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+		if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+			header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+		}
+		if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+			header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+		}
+		exit(0);
+	}
+	
+ 	// get data from url
 	if (!$epidoc and $dataUrl) {
-		
+
 		$dataUrl = trim($dataUrl);
 		
-		// check size
+		// check if curl exists
+		if (!function_exists('curl_init')) {
+			throw new Exception('Curl Extension not installed');
+		}
+		
+		// check size 
+		/* (does not work in many cases, therefore disabled)
 		$ch = curl_init($dataUrl);
 		curl_setopt($ch, CURLOPT_NOBODY, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -121,9 +145,17 @@ try {
 		if ($fileSize >= 512000) {
 			throw new Exception("Maximum size of 500kb exceeded; file is {$fileSize}kb!" . print_r($data,1));
 		}
+		*/
 		
 		// passed, get data
-		$epidoc = file_get_contents($dataUrl);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $dataUrl);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		$epidoc = curl_exec($ch);
+		curl_close($ch);
+		
+		
 	}
 
 	
@@ -132,9 +164,10 @@ try {
 	}
 	
 	// get converter 
-	require_once('../epidocConverter.class.php');	
+	require_once(realpath(dirname(__FILE__) . '/../epidocConverter.class.php'));	
 	$converter = epidocConverter::create($epidoc, $mode);
 	
+	//throw new Exception('yes');
 	// get render options
 	foreach ($converter->renderOptionset as $option => $optionData) {
 		if (!empty($post[$option])) {
@@ -143,13 +176,13 @@ try {
 			}
 		}
 	}
-	/*ob_start();	var_dump($converter->renderOptions);	$result = ob_get_clean();	throw new Exception('die! ' . $result)	;*/
+
 	// do the conversion thing
 	$mode = str_replace('epidocConverter\\', '', get_class($converter));
 	$res = $converter->convert($returnAll);
 						
 
-} catch (Exception $a) {
+} catch (Exception $a) {	
 	echo json_encode(array(
 		'success'	=> false,
 		'message'	=> $a->getMessage(),
@@ -160,7 +193,6 @@ try {
 
 
 // return  success
-
 unset($post['epidoc']);
 unset($post['data']);
 
@@ -168,8 +200,7 @@ $return = array(
 	'success'	=> true,
 	'data'		=> $res,
 	'mode'		=> $mode,
-	'query'		=> $post,
-	'debug'		=> print_r($converter->renderOptions,1)
+	'query'		=> $post
 );
 
 if (count($warnings)) {

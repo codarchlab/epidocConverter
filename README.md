@@ -1,10 +1,12 @@
 # epidocConverter
 
-A PHP library to convert Epidoc-XMLs to HTML, using the XSLT Stylesheets and the Saxon XSLT 2.0 Processor or some fallback Stylesheets and the PHP XSLT 1.0 Processor.
+A PHP library to convert EpiDoc-XMLs to HTML, using the XSLT Stylesheets and the Saxon XSLT 2.0 Processor or some fallback Stylesheets and the PHP XSLT 1.0 Processor.
  
 Version 1.5, 2016. 
 
 Author: Philipp Franck.
+
+Try it out on [http://epidoc.dainst.org/]([http://epidoc.dainst.org/])
 
 ## Requirements
 

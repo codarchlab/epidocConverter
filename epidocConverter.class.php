@@ -3,7 +3,7 @@
  *
  * epidocConverter
  *
- * @version 1.1
+ * @version 1.5
  * 
  * @year 2016
  * 
@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 abstract class epidocConverter {
 	
-	public $version = '1.1';
+	public $version = '1.5';
 	
 	// position of xslt stylsheets & so on
 	public $workingDir; // usually __DIR__
